@@ -62,6 +62,16 @@
             const s = document.getElementById("song")
             s.play()
             b.style.display = 'none';
+            // if there is a query param, set the image source before showing cate
+            const urlParams = new URLSearchParams(window.location.search)
+            const catetype = urlParams.get('cate')
+            switch(catetype) {
+                case 'polite':
+                    c.src = 'polite.png'
+                case 'cate':
+                default:
+                    break;
+            }
             c.style.display = 'block';
           })
       </script>
