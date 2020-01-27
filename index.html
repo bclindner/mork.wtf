@@ -48,7 +48,7 @@
           <source src="song.mp3" type="audio/mpeg"/>
       </audio>
       <h1 id="caption"></h1>
-      <img id="cate" src="cate.png">
+      <img id="cate" src="">
       <script>
           const config = {
               animationLength: 0.35,
@@ -95,7 +95,7 @@
             }
             // set caption (and show it)
             const caption = urlParams.get('caption')
-            if (caption.length) {
+            if (typeof caption === "string") {
                 const captionElement = document.getElementById('caption')
                 captionElement.textContent = caption
                 captionElement.style.display = 'block'
