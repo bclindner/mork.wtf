@@ -18,15 +18,6 @@
         }
         @keyframes bounce {
             0% {
-                transform: translateY(-16px);
-            }
-            100% {
-                transform: translateY(0px);
-            }
-
-        }
-        @keyframes cate {
-            0% {
                 transform: translateY(-16px) scaleX(-1);
             }
             49.999% {
@@ -40,41 +31,82 @@
             }
         }
         #cate {
-           animation: cate 0.3s linear infinite;
-           display: none;
+           animation: bounce 0.35s linear infinite;
         }
-        #morkwtf {
+        #caption {
             font-family: "Comic Sans MS", "Comic Sans", cursive;
+        }
+        #cate, #caption {
+            display: none;
         }
     </style>
   </head>
   <body>
       <noscript>page need js so i can trick you into playing audio. sorry :(</noscript>
       <button id="button">start</button>
-      <audio id="song">
+      <audio loop id="song">
           <source src="song.mp3" type="audio/mpeg"/>
       </audio>
+      <h1 id="caption"></h1>
       <img id="cate" src="cate.png">
       <script>
+          const config = {
+              animationLength: 0.35,
+              emojitype: 'cate'
+          }
           const b = document.getElementById("button")
           const c = document.getElementById("cate")
           b.addEventListener("click", () => {
             const s = document.getElementById("song")
-            s.play()
-            b.style.display = 'none';
-            // if there is a query param, set the image source before showing cate
+            // parse url params
             const urlParams = new URLSearchParams(window.location.search)
-            const catetype = urlParams.get('cate')
-            switch(catetype) {
+
+            // type of emoji
+            config.emojitype = urlParams.get('cate')
+            switch(config.emojitype) {
+                case 'catto':
+                    c.src = 'catto.png'
+                    break;
+                case 'sad':
+                    c.src = 'sad.png'
+                    break;
+                case 'sadder':
+                    c.src = 'sadder.png'
+                    break;
                 case 'polite':
                     c.src = 'polite.png'
+                    break;
                 case 'cate':
+                case 'scrungy':
                 default:
+                    c.src = 'cate.png'
                     break;
             }
+            // set sound and animation speed
+            try {
+                const requestedSpeed = Number(urlParams.get('speed'))
+                if (requestedSpeed > 0) {
+                    s.playbackRate = requestedSpeed
+                }
+                c.style.animation = `bounce ${config.animationLength / requestedSpeed}s linear infinite`
+            } catch (e) {
+                console.warn("could not parse playback speed")
+                console.error(e)
+            }
+            // set caption (and show it)
+            const caption = urlParams.get('caption')
+            if (caption.length) {
+                const captionElement = document.getElementById('caption')
+                captionElement.textContent = caption
+                captionElement.style.display = 'block'
+            }
+            // set up cate, hide button, play music
             c.style.display = 'block';
+            b.style.display = 'none';
+            s.play()
           })
       </script>
+
 
 
   </body>
