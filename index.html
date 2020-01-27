@@ -2,115 +2,132 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>wtf</title>
     <style>
-        body {
-            width: 100vw;
-            height: 100vh;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items:center;
-            overflow: hidden;
+      body {
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+      @keyframes bounce {
+        0% {
+          transform: translateY(-16px) scaleX(-1);
         }
-        @keyframes bounce {
-            0% {
-                transform: translateY(-16px) scaleX(-1);
-            }
-            49.999% {
-                transform: translateY(0px) scaleX(-1);
-            }
-            50% {
-                transform: translateY(-16px) scaleX(1);
-            }
-            100% {
-                transform: translateY(0px) scaleX(1);
-            }
+        49.999% {
+          transform: translateY(0px) scaleX(-1);
         }
-        #cate {
-           animation: bounce 0.35s linear infinite;
+        50% {
+          transform: translateY(-16px) scaleX(1);
         }
-        #caption {
-            font-family: "Comic Sans MS", "Comic Sans", cursive;
+        100% {
+          transform: translateY(0px) scaleX(1);
         }
-        #cate, #caption {
-            display: none;
+      }
+      @keyframes spin {
+        0% {
+            transform: rotate(0deg);
         }
+        100% {
+            transform: rotate(360deg);
+        }
+      }
+      #caption {
+        font-family: "Comic Sans MS", "Comic Sans", cursive;
+      }
+      #emoji,
+      #caption {
+        display: none;
+      }
     </style>
   </head>
   <body>
-      <noscript>page need js so i can trick you into playing audio. sorry :(</noscript>
-      <button id="button">start</button>
-      <audio loop id="song">
-          <source src="song.mp3" type="audio/mpeg"/>
-      </audio>
-      <h1 id="caption"></h1>
-      <img id="cate" src="">
-      <script>
-          const config = {
-              animationLength: 0.35,
-              emojitype: 'cate'
+    <noscript>
+      page need js so i can trick you into playing audio. sorry :(
+    </noscript>
+    <button id="button">start</button>
+    <audio loop id="song">
+      <source src="song.mp3" type="audio/mpeg" />
+    </audio>
+    <h1 id="caption"></h1>
+    <img id="emoji" src="" />
+    <script>
+      const constants = {
+        emojis: {
+          'cate': 'emojis/cate.png',
+          'scrungy': 'emojis/cate.png',
+          'catto': 'emojis/catto.png',
+          'sad': 'emojis/sad.png',
+          'sadder': 'emojis/sadder.png',
+          'smug': 'emojis/smug.png',
+          'polite': 'emojis/polite.png',
+        },
+        animationTypes: {
+          bounce: {
+            length: 0.35,
+            name: 'bounce'
+          },
+          spin: {
+            length: 0.7,
+            name: 'spin'
           }
-          const b = document.getElementById("button")
-          const c = document.getElementById("cate")
-          b.addEventListener("click", () => {
-            const s = document.getElementById("song")
-            // parse url params
-            const urlParams = new URLSearchParams(window.location.search)
+        }
+      }
+      let config = {
+        animation: 'bounce',
+        emoji: 'cate',
+        speed: 1,
+        caption: null
+      };
+      const buttonElement = document.getElementById('button')
+      const emojiElement = document.getElementById('emoji');
+      buttonElement.addEventListener('click', () => {
+        const audioElement = document.getElementById('song');
+        // parse url params
+        const urlParams = new URLSearchParams(window.location.search);
+        config.emoji = urlParams.get('emoji') || urlParams.get('cate') || 'cate';
+        try {
+          const speed = Number(urlParams.get('speed'));
+          if (speed > 0) {
+              config.speed = speed;
+          }
+        } catch (e) {
+          console.err(error);
+          console.warn('failed to parse speed param; defaulting to 1');
+        }
+        config.caption = urlParams.get('caption');
+        config.animation = urlParams.get('anim') || 'bounce';
 
-            // type of emoji
-            config.emojitype = urlParams.get('cate')
-            switch(config.emojitype) {
-                case 'catto':
-                    c.src = 'catto.png'
-                    break;
-                case 'sad':
-                    c.src = 'sad.png'
-                    break;
-                case 'sadder':
-                    c.src = 'sadder.png'
-                    break;
-                case 'polite':
-                    c.src = 'polite.png'
-                    break;
-                case 'cate':
-                case 'scrungy':
-                default:
-                    c.src = 'cate.png'
-                    break;
-            }
-            // set sound and animation speed
-            try {
-                const requestedSpeed = Number(urlParams.get('speed'))
-                if (requestedSpeed > 0) {
-                    s.playbackRate = requestedSpeed
-                }
-                c.style.animation = `bounce ${config.animationLength / requestedSpeed}s linear infinite`
-            } catch (e) {
-                console.warn("could not parse playback speed")
-                console.error(e)
-            }
-            // set caption (and show it)
-            const caption = urlParams.get('caption')
-            if (typeof caption === "string") {
-                const captionElement = document.getElementById('caption')
-                captionElement.textContent = caption
-                captionElement.style.display = 'block'
-            }
-            // set up cate, hide button, play music
-            c.style.display = 'block';
-            b.style.display = 'none';
-            s.play()
-          })
-      </script>
+        // edit based on configuration
 
-
-
+        // type of emoji
+        if (config.emoji in constants.emojis) {
+            emojiElement.src = constants.emojis[config.emoji]
+        }
+        // set sound and animation speed
+        audioElement.playbackRate = config.speed
+        if (config.animation in constants.animationTypes) {
+        const animData = constants.animationTypes[config.animation]
+        emojiElement.style.animation = `${animData.name} ${animData.length /
+          config.speed}s linear infinite`;
+        }
+        // set caption (and show it)
+        if (typeof config.caption === 'string') {
+          const captionElement = document.getElementById('caption');
+          captionElement.textContent = config.caption;
+          captionElement.style.display = 'block';
+        }
+        // set up cate, hide button, play music
+        emojiElement.style.display = 'block';
+        buttonElement.style.display = 'none';
+        audioElement.play();
+      });
+    </script>
   </body>
-
-
-
 </html>
